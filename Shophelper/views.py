@@ -21,7 +21,7 @@ def search(request) :
 
         response=req.get(url= url, headers=headers)
         msg=response.json()
-        
+
         return render(request, 'search.html', {"msg" : msg})
 
 def main(request) :
