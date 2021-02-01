@@ -1,0 +1,22 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="imagedown.filenames" />
+          <option value="AudioAnalyze" />
+          <option value="chat.views.*" />
+          <option value="windowmake.edt1" />
+          <option value="windowmake.edt2" />
+          <option value="windowmake.edt3" />
+          <option value="windowmake.edt4" />
+          <option value="windowmake.listData1" />
+          <option value="windowmake.listData2" />
+          <option value="windowmake.listData3" />
+          <option value="windowmake.listData4" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
