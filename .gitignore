@@ -73,7 +73,8 @@ fabric.properties
 venv/
 __pycache__/
 .env
-
+db.sqlite3
+key.py
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode
 
@@ -87,5 +88,7 @@ __pycache__/
 # Ignore all local history of files
 .history
 .ionide
+.vscode
+
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode
