@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import requests as req
 import json
-import key
+import key, crawl
 # Create your views here.
 
 def search(request) :
@@ -21,7 +21,9 @@ def search(request) :
 
         response=req.get(url= url, headers=headers)
         msg=response.json()
-
+        CrawlURL=msg['items'][0]['link']
+        #mallName=msg['items'][0]['mallName']
+        #crawl.crawl(CrawlURL, mallName)
         return render(request, 'search.html', {"msg" : msg})
 
 def main(request) :

@@ -1,18 +1,55 @@
+import requests
 from bs4 import BeautifulSoup
-import requests as req
-import re
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import pandas as pd
+import json
+from IPython.display import display
+#import wordcloud
+import csv
+import matplotlib.pyplot as plt
 
-p = re.compile('reviewItems_text__.*')
+content = []
+point = []
+def crawl(url):
+    driver = webdriver.Chrome('chromedriver')
+    driver.get(url)
+    driver.implicitly_wait(2)
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
 
-url = req.get('https://search.shopping.naver.com/gate.nhn?id=24302992388')
-soup = BeautifulSoup(url.content, 'html.parser')
-s = soup.find('script').string.split("'")[1]
+    result = soup.find('li', class_='prodItem wide')
+    modelno = result['ingimodelno']
 
+    driver.close()
 
-true_url = req.get('https://search.shopping.naver.com/'+s)
-soup2 = BeautifulSoup(true_url.content, 'html.parser') #여기에 html담
-result = str(soup2.find_all(class_=p))
+    review_url = "http://www.enuri.com/view/zum/ajax/detailBoard_ajax.jsp?modelno={0}&pageno=1&pagesize={1}".format(modelno, "10000")
 
-real_result=re.sub('<.+?>', '', result, 0).strip()
+    data = requests.get(review_url)
+    json_data = json.loads(data.text)
 
-print(real_result)
+    review_count = int(json_data['reviewCount'])
+
+    for i in range(review_count):
+        content.append(json_data['reviewBody'][i]['content'])
+        point.append(json_data['reviewBody'][i]['point'])
+
+    df = pd.DataFrame([x for x in zip(point,content)])
+    df.columns = ["평점", "리뷰"]
+
+    df.평점 = [int(x) for x in df.평점]
+    df["긍정리뷰"]=df['평점']>3
+
+    display(df[df["긍정리뷰"]==False])
+    #df.to_csv('review.csv')
+
+keyword="나이키+에어맥스"
+url="http://www.enuri.com/search.jsp?nosearchkeyword=&issearchpage=&searchkind=&es=&c=&ismodelno=false&hyphen_2=false&from=list&owd=&keyword={0}".format(keyword)
+crawl(url)
+
+# wordcloud = WordCloud(font_path='font/NanumGothic.ttf', background_color='white').generate(text)
+# plt.figure(figsize=(22,22)) #이미지 사이즈 지정
+# plt.imshow(wordcloud, interpolation='lanczos') #이미지의 부드럽기 정도
+# plt.axis('off') #x y 축 숫자 제거
+# plt.show()
+# plt.savefig()
