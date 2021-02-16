@@ -8,7 +8,6 @@ from tensorflow.keras.models import load_model
 
 def predict_label(token,model) :
     max_len = 80 #패딩의 길이
-
     encoded = tokenizer.texts_to_sequences([token]) # 정수로 인코딩
     pad_new = pad_sequences(encoded, maxlen = max_len) # 패딩
     score = float(loaded_model.predict(pad_new)) # 예측
@@ -53,14 +52,24 @@ def set_tokenizer() :
     tokenizer.fit_on_texts(fit_data)
     return tokenizer
 
-df = pd.read_csv('review3.csv', encoding='utf8') # 리뷰파일 로드
-stopwords = make_stopwords() # 직접 지정한 불용어, 불용어 사전으로 불용어 리스트 만듦
-tokenizer = set_tokenizer() # tokenizer를 모델에 맞게 set
+def test(df):
+    df = df.astype({'평점': 'int'})
+    print("-잘받았는지-----")
+    print(df.head(5))
+    print("-head끝-------")
+    print(type(df['평점'][0]))
+    df['tokenized'] = df['리뷰'].map(lambda x: tokenized(x, stopwords, tokenizer, mecab)) # 리뷰 토큰화
+    df['label'] = df['tokenized'][df['평점']==3].map(lambda x: predict_label(x, loaded_model)) # 로드한 모델로 3점만 감성분류
+    df['label'][df['평점'] > 3] = 1# 4~5점 : 긍정
+    df['label'][df['평점'] < 3] = 0# 1~2점 : 부정
+    nn = df[['리뷰', '평점']][df['label'] == 0]
+    nn.to_csv('negative.csv')
+    print("-"*30)
+    print(df.head(5))
+    print("---------분석 끝--------------------------")
+    return df
+
 mecab = Mecab(dicpath=r"C:\mecab\mecab-ko-dic") # 토큰화를 위한 mecab 생성(windows 환경 파일별도지정)
 loaded_model = load_model('best_model.h5') # 감성분류 모델 로드
-
-df['tokenized'] = df['리뷰'].map(lambda x: tokenized(x, stopwords, tokenizer,mecab)) # 리뷰 토큰화
-df['label'] = df['tokenized'][df['평점']==3].map(lambda x: predict_label(x,loaded_model)) # 로드한 모델로 3점만 감성분류
-df['label'][df['평점']>3] = 1 # 4~5점 : 긍정
-df['label'][df['평점']<3] = 0 # 1~2점 : 부정
-print(df.head())
+stopwords = make_stopwords() # 직접 지정한 불용어, 불용어 사전으로 불용어 리스트 만듦
+tokenizer = set_tokenizer() # tokenizer를 모델에 맞게 set
